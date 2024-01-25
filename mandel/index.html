@@ -1,0 +1,440 @@
+﻿<!DOCTYPE html>
+<html>
+    <head>
+        <title>🌌</title>
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+        <link rel="manifest" href="/site.webmanifest">
+        <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+        <meta name="msapplication-TileColor" content="#da532c">
+        <meta name="theme-color" content="#ffffff">
+        <script>    
+const MAX_ITER = 128;
+const MAX_ITER_MASK = MAX_ITER - 1;
+
+const colorMapC = [4284745472, 4285074432, 4285403392, 4285732352, 4286061313, 4286390273, 4286719234, 4287048195, 4287377156, 4287706117, 4288035079, 4288429576, 4288758538, 4289087500, 4289416206, 4289745169, 4290074131, 4290403094, 4290732057, 4291060764, 4291389727, 4291587618, 4291719974, 4291786537, 4291918893, 4291985713, 4292117813, 4292184634, 4292316990, 4292383555, 4292515912, 4292648013, 4292714834, 4292846936, 4292913757, 4293045859, 4293112681, 4293244783, 4293377141, 4293443708, 4293576066, 4293642633, 4293774736, 4293841559, 4293973663, 4294106022, 4294172590, 4294304693, 4294371261, 4294503622, 4294570190, 4294702295, 4294834399, 4294901224, 4294705134, 4294115313, 4293525492, 4292935671, 4292345849, 4291755772, 4291165694, 4290575615, 4289985279, 4289394943, 4288804607, 4288214271, 4287623935, 4287033343, 4286442751, 4285852159, 4285261311, 4284670719, 4284079871, 4283489023, 4282897919, 4282307071, 4281715967, 4281124863, 4280533503, 4279942399, 4279351039, 4278759679, 4278233855, 4278232829, 4278232059, 4278231289, 4278230518, 4278229492, 4278228721, 4278227694, 4278226923, 4278226152, 4278225125, 4278224353, 4278223326, 4278222554, 4278221526, 4278220753, 4278219725, 4278218952, 4278217924, 4278216895, 4278216122, 4278215093, 4278214063, 4278213290, 4278212260, 4278211230, 4278210456, 4278209426, 4278208395, 4278207365, 4278206334, 4278205559, 4278204528, 4278203497, 4278202465, 4278201434, 4278200402, 4278199370, 4278198338, 4278197306, 4278196273, 4278195241, 4278194208, 4278193175, 4278192142, 4278191109];
+const colorMapC2 = [4278191872, 4278848512, 4279505152, 4280161792, 4280818433, 4281475073, 4282131714, 4282788355, 4283444996, 4284101637, 4284758279, 4285414920, 4286071562, 4286728204, 4287384846, 4288041233, 4288697875, 4289354518, 4290011161, 4290667804, 4291324191, 4291587618, 4291719974, 4291786794, 4291918893, 4291985714, 4292118070, 4292250170, 4292316991, 4292449348, 4292515912, 4292648270, 4292714835, 4292847192, 4292979294, 4293046116, 4293178474, 4293245040, 4293377142, 4293443965, 4293576067, 4293708426, 4293774993, 4293907352, 4293973920, 4294106023, 4294172847, 4294304951, 4294437055, 4294503879, 4294635984, 4294702552, 4294834657, 4294901482, 4294574063, 4293984242, 4293394421, 4292804600, 4292214522, 4291624700, 4291034622, 4290444287, 4289854207, 4289263871, 4288673535, 4288083199, 4287492607, 4286902015, 4286311423, 4285720831, 4285130239, 4284539391, 4283948543, 4283357695, 4282766591, 4282175487, 4281584383, 4280927743, 4280336639, 4279745279, 4279153919, 4278562559, 4278233598, 4278232572, 4278231802, 4278231032, 4278230262, 4278229235, 4278228464, 4278227693, 4278226666, 4278225895, 4278225123, 4278224096, 4278223324, 4278222296, 4278221524, 4278220496, 4278219723, 4278218695, 4278217922, 4278216893, 4278216120, 4278215090, 4278214317, 4278213287, 4278212257, 4278211483, 4278210453, 4278209679, 4278208648, 4278207618, 4278206587, 4278205812, 4278204781, 4278203749, 4278202718, 4278201942, 4278200910, 4278199878, 4278198846, 4278197814, 4278197037, 4278196005, 4278194972, 4278193939, 4278192905, 4278191872];
+
+const fillCol = `#${colorMapC[1].toString(16).slice(6, 8)}${colorMapC[1].toString(16).slice(4, 6)}${colorMapC[1].toString(16).slice(2, 4)}`;
+
+function fillPixel(pixelData32, ind, val) {
+/*    ind <<= 2;
+    if (val >= MAX_ITER) {
+        val = val & MAX_ITER_MASK;
+        pixelData[ind] = colorMap2[val];
+        pixelData[ind + 1] = colorMap2[val + MAX_ITER];
+        pixelData[ind + 2] = colorMap2[val + 2 * MAX_ITER];
+    } else {
+        pixelData[ind] = colorMap[val];
+        pixelData[ind + 1] = colorMap[val + MAX_ITER];
+        pixelData[ind + 2] = colorMap[val + 2 * MAX_ITER];
+    }
+    pixelData[ind + 3] = 255;*/
+    if (val >= MAX_ITER) {
+        val = val & MAX_ITER_MASK;
+        pixelData32[ind] = colorMapC2[val];
+    } else {
+        pixelData32[ind] = colorMapC[val];
+    }
+}
+
+var cscaleStep = 2;
+
+function distToPix(dist) {
+    return Number(dist / ((cscaleStep & 1) ? 1448n : 2048n));
+}
+
+function pixToDist(pix) {
+    return BigInt(pix) * ((cscaleStep & 1) ? 1448n : 2048n);
+}
+
+var xmin = 0n;
+var ymin = 0n;
+        
+var valCache = {};
+const CACHE_POW = 7;
+const CACHE_SIZE = 1 << CACHE_POW;
+const CACHE_MASK = CACHE_SIZE - 1;
+
+valCache.checkBound = function() {
+    let xminabs = valCache[cscaleStep].xmin > xmin ? valCache[cscaleStep].xmin - xmin : xmin - valCache[cscaleStep].xmin;
+    let yminabs = valCache[cscaleStep].ymin > ymin ? valCache[cscaleStep].ymin - ymin : ymin - valCache[cscaleStep].ymin;
+    return xminabs + yminabs < pixToDist(1000000);
+}
+
+valCache.createCache = function() {
+    if (valCache[cscaleStep]) {
+        if (valCache.checkBound()) {
+            return;
+        }
+    }
+    valCache[cscaleStep] = {
+        'xmin': xmin,
+        'ymin': ymin,
+        'data': new Map()
+    };
+}
+valCache.createCache();
+
+var redrawQueue = [];
+var redrawId = 0;
+
+var procQueue = [];
+
+const NWORKERS = 8;
+var workerArr = [];
+
+var workQueue = [];
+
+var workerFree = new Array(NWORKERS);
+workerFree.fill(1);
+
+function U16FromU32(buf) {
+    let data32 = new Uint32Array(buf);
+    let data16 = new Uint16Array(data32.length);
+    for (let i = 0; i < data32.length; ++i) {
+        data16[i] = data32[i];
+    }
+    return data16;
+}
+
+for (let i = 0; i < NWORKERS; ++i) {
+    let w = new Worker('worker.js');
+    w.addEventListener("message", function (msg) {
+//        valCache[msg.data.cscaleStep].data.set(msg.data.icxi + (msg.data.icyi << 16), new Uint32Array(msg.data.data));
+        valCache[msg.data.cscaleStep].data.set(msg.data.icxi + (msg.data.icyi << 16), U16FromU32(msg.data.data));
+        while (workQueue.length) {
+            let data = workQueue.pop();
+            let curc = valCache[data.cscaleStep];
+            if ((curc.data.get(data.icxi + (data.icyi << 16)) === null) && (curc.xmin == data.cxmin) && (curc.ymin == data.cymin)) {
+                w.postMessage(data);
+                return;
+            }
+        } 
+        workerFree[i] = 1;
+    });
+    workerArr.push(w);
+};
+
+var sxmin;
+var symin;
+
+var redrawSet;
+var redrawArr;
+
+function prepareRedraw(canvas, cx, cy) {
+    ++redrawId;
+    let curc = valCache[cscaleStep];
+    let icx = distToPix(xmin - curc.xmin);
+    let icy = distToPix(ymin - curc.ymin);
+    
+    function overfl(d) {
+        return d >> 2;
+    }
+    
+    let ximin = (icx - overfl(canvas.width)) >> CACHE_POW;
+    let ximax = (icx + canvas.width + overfl(canvas.width)) >> CACHE_POW;
+    let yimin = (icy - overfl(canvas.height)) >> CACHE_POW;
+    let yimax = (icy + canvas.height + overfl(canvas.height)) >> CACHE_POW;
+
+    let ximinr = icx >> CACHE_POW;
+    let ximaxr = (icx + canvas.width - 1) >> CACHE_POW;
+    let yiminr = icy >> CACHE_POW;
+    let yimaxr = (icy + canvas.height - 1) >> CACHE_POW;
+
+    redrawArr = [];
+    redrawSet = new Set();
+
+    {
+        let i = 0;
+        for (let icxi = ximin; icxi <= ximax; ++icxi) {
+            for (let icyi = yimin; icyi <= yimax; ++icyi) {
+                redrawArr.push([icxi, icyi]);
+            }
+        }
+    }
+    
+    let cxi = (icx + cx) >> CACHE_POW;
+    let cyi = (icy + cy) >> CACHE_POW;
+    
+    redrawArr.sort((p1, p2)=>{
+        let x1 = p1[0];
+        let x2 = p2[0];
+        let y1 = p1[1];
+        let y2 = p2[1];
+        
+        let d1 = (x1 - cxi)*(x1 - cxi) + (y1 - cyi)*(y1 - cyi);
+        let d2 = (x2 - cxi)*(x2 - cxi) + (y2 - cyi)*(y2 - cyi);
+        
+        return d1 > d2 ? -1 : d1 == d2 ? 0 : 1;
+    });
+    
+    for (let i = 0; i < redrawArr.length; ++i) {
+        let p = redrawArr[i];
+        let icxi = p[0];
+        let icyi = p[1];
+        if ((icxi >= ximinr) && (icxi <= ximaxr) && (icyi >= yiminr) && (icyi <= yimaxr)) {
+            redrawSet.add(i);
+        }
+        let bi = icxi + (icyi << 16);
+        let ix = (icxi << CACHE_POW) + (icx & CACHE_MASK) - icx;
+        let iy = (icyi << CACHE_POW) + (icy & CACHE_MASK) - icy;
+        if (!curc.data.get(bi)) {
+            curc.data.set(bi, null);
+            workQueue.push({
+                'icxi': icxi,
+                'icyi': icyi,
+                'cxmin': curc.xmin,
+                'cymin': curc.ymin,
+                'cscaleStep': cscaleStep,
+                'maxIter': MAX_ITER * (((cscaleStep / 8) + 1.5) | 0)
+            });
+        }
+    }
+
+    for (let i = 0; i < NWORKERS; ++i) {
+        if (workQueue.length && workerFree[i]) {
+            workerFree[i] = 0;
+            workerArr[i].postMessage(workQueue.pop());
+        }
+    }
+    
+    workQueue = workQueue.slice(-2048);
+    
+    return redrawId;
+}
+
+async function initRedraw(canvas, cx, cy, preppedId, redraw) {
+    if (preppedId != redrawId) return;
+    
+    let curc = valCache[cscaleStep];
+    let icx = distToPix(xmin - curc.xmin);
+    let icy = distToPix(ymin - curc.ymin);
+
+    const ctx = canvas.getContext('2d');
+    let imageData = null;
+    let pixelData32;
+    
+    function getImageData() {
+        if (redraw) {
+            imageData = ctx.createImageData(canvas.width + 2 * CACHE_SIZE, canvas.height + 2 * CACHE_SIZE);
+            pixelData32 = new Uint32Array(imageData.data.buffer);
+            for (let ind = 0; ind < (imageData.data.length >> 2); ++ind) {
+                fillPixel(pixelData32, ind, 1);
+            }
+        } else {
+            imageData = ctx.getImageData(-(icx & CACHE_MASK), -(icy & CACHE_MASK), canvas.width + 2 * CACHE_SIZE, canvas.height + 2 * CACHE_SIZE);
+            pixelData32 = new Uint32Array(imageData.data.buffer);
+        }
+    }
+    
+    
+    while (redrawSet.size) {
+        for (let ind of redrawSet) {
+            let p = redrawArr[ind];
+            let icxi = p[0];
+            let icyi = p[1];
+            let ix = (icxi << CACHE_POW) + (icx & CACHE_MASK) - icx;
+            let iy = (icyi << CACHE_POW) + (icy & CACHE_MASK) - icy;
+            let data = curc.data.get(icxi + (icyi << 16));
+            if (data) {
+                if (imageData === null) getImageData();
+                redrawSet.delete(ind);
+                let datai = 0;
+                for (let dy = 0; dy < CACHE_SIZE; ++dy) {
+                    let ind = imageData.width * (dy + iy) + ix;
+                    for (let dx = 0; dx < CACHE_SIZE; ++dx) {
+                        fillPixel(pixelData32, ind, data[datai++]);
+                        ++ind;
+                    }
+                }
+            }
+        }
+        if (imageData) {
+            ctx.putImageData(imageData, -(icx & CACHE_MASK), -(icy & CACHE_MASK));
+        }
+        await new Promise((a)=>{requestAnimationFrame((t)=>a())});
+        if (preppedId != redrawId) return;
+    }
+}
+
+var animProgress = 0;
+const animDuration = 50;
+
+async function animZoomIn(canvas, cx, cy, scaledImageData) {
+    animProgress = 1;
+    let ofscr = new OffscreenCanvas(scaledImageData.width, scaledImageData.height);
+    let ofctx = ofscr.getContext('2d', { 'willReadFrequently': true });
+    ofctx.putImageData(scaledImageData, 0, 0);
+
+    let ctx = canvas.getContext('2d');
+
+    let start = 0;
+    requestAnimationFrame((t)=>{start = t});
+    
+    await new Promise((finish) => {
+        let scalePic = function(time) {
+            let ptime = time - start;
+            if (ptime > animDuration) {
+                let scalefact = 256 / 181;
+                ctx.drawImage(ofscr, cx * (1 - scalefact), cy * (1 - scalefact), scaledImageData.width * scalefact, scaledImageData.height * scalefact);
+                finish();
+                animProgress = 0;
+                return;
+            }
+            let scalefact = 2 ** (ptime / animDuration / 2);
+            ctx.drawImage(ofscr, cx * (1 - scalefact), cy * (1 - scalefact), scaledImageData.width * scalefact, scaledImageData.height * scalefact);
+            
+            requestAnimationFrame(scalePic);
+        }
+        requestAnimationFrame(scalePic);
+    });
+}
+
+async function animZoomOut(canvas, cx, cy) {
+    animProgress = 1;
+    await new Promise((a)=>{requestAnimationFrame((t)=>a())});
+    let ofscr = new OffscreenCanvas(canvas.width, canvas.height);
+    let ofctx = ofscr.getContext('2d', { 'willReadFrequently': true });
+    ofctx.fillStyle = fillCol;
+    ofctx.fillRect(0, 0, ofscr.width, ofscr.height);
+    
+    let scalefact = 181 / 256;
+    ofctx.drawImage(canvas, cx * (1 - scalefact), cy * (1 - scalefact), canvas.width * scalefact, canvas.height * scalefact);
+    
+    let ctx = canvas.getContext('2d');
+    ctx.drawImage(ofscr, 0, 0, canvas.width, canvas.height);
+    animProgress = 0;    
+}
+
+async function onScroll(evt) {
+    if (animProgress) return;
+    if (evt.buttons & 1) {
+        return;
+    }
+    let ax = pixToDist(evt.offsetX) + xmin;
+    let ay = pixToDist(evt.offsetY) + ymin;
+    let zoomIn = false;
+    if (evt.wheelDelta < 0) {
+        if (cscaleStep > 0) {
+            --cscaleStep;
+            if (cscaleStep & 1) {
+                ax >>= 1n;
+                ay >>= 1n;
+            }
+        } else {
+            return;
+        }
+    } else {
+        sxmin = xmin;
+        symin = ymin;
+        if (cscaleStep & 1) {
+            ax <<= 1n;
+            ay <<= 1n;
+            sxmin <<= 1n;
+            symin <<= 1n;
+        }
+        ++cscaleStep;
+        zoomIn = true;
+    }
+    xmin = ax - pixToDist(evt.offsetX);
+    ymin = ay - pixToDist(evt.offsetY);
+    valCache.createCache();
+    let pId = prepareRedraw(evt.target, evt.offsetX, evt.offsetY);
+    if (zoomIn) {
+        ctx = evt.target.getContext('2d');
+        let scaledImageData = ctx.getImageData(0, 0, evt.target.width, evt.target.height);
+        await animZoomIn(evt.target, evt.offsetX, evt.offsetY, scaledImageData);
+    } else {
+        await animZoomOut(evt.target, evt.offsetX, evt.offsetY);
+    }
+    initRedraw(evt.target, evt.offsetX, evt.offsetY, pId, false);
+}
+
+async function animMove(canvas, dx, dy) {
+    animProgress = 1;
+    await new Promise((a)=>{requestAnimationFrame((t)=>a())});
+    let ctx = canvas.getContext('2d');
+    ctx.drawImage(canvas, dx, dy, canvas.width, canvas.height);
+    ctx.fillStyle = fillCol;
+    if (dx > 0) {
+        ctx.fillRect(0, 0, dx, canvas.height);
+    } else {
+        ctx.fillRect(canvas.width + dx, 0, -dx, canvas.height);
+    }
+    if (dy > 0) {
+        ctx.fillRect(0, 0, canvas.width, dy);
+    } else {
+        ctx.fillRect(0, canvas.height + dy, canvas.width, -dy);
+    }
+    animProgress = 0;
+}
+
+var px, py;
+var drag = false;
+
+async function onMove(evt) {
+    if (animProgress) return;
+    if (evt.buttons & 1) {
+        if (drag) {
+            xmin -= pixToDist(evt.offsetX - px);
+            ymin -= pixToDist(evt.offsetY - py);
+            let pId = prepareRedraw(evt.target, evt.offsetX, evt.offsetY);
+            await animMove(evt.target, evt.offsetX - px, evt.offsetY - py);
+            initRedraw(evt.target, evt.offsetX, evt.offsetY, pId, false);
+        }
+        px = evt.offsetX;
+        py = evt.offsetY;
+        drag = true;
+    } else {
+        drag = false;
+    }
+}
+
+document.addEventListener("DOMContentLoaded", ()=>{
+    const canvas = document.getElementById('main');
+    
+    function centerXY() {
+        xmin = - pixToDist(canvas.width >> 1) - (1n << BigInt((cscaleStep >> 1) + 18));
+        ymin = - pixToDist(canvas.height >> 1);
+    }
+    
+    function onResize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        let pId = prepareRedraw(canvas, canvas.width / 2, canvas.height / 2);
+        initRedraw(canvas, canvas.width / 2, canvas.height / 2, pId, true);
+    }
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+//    canvas.getContext('2d');
+    canvas.getContext('2d', { 'willReadFrequently': true });
+    centerXY();
+    let pId = prepareRedraw(canvas, canvas.width / 2, canvas.height / 2);
+    initRedraw(canvas, canvas.width / 2, canvas.height / 2, pId, true);
+    
+    canvas.addEventListener('wheel', onScroll);
+    canvas.addEventListener('mousemove', onMove);
+        
+    window.addEventListener("resize", onResize);
+    
+});
+        </script>
+        <style>
+            canvas#main {
+                cursor: grab;
+            }
+            
+            canvas#main:active {
+                cursor: grabbing;
+            }            
+        </style>
+    </head>
+    <body style="margin: 0px; overflow: hidden">
+        <div style="margin-top: 0px; padding: 0px; display: flex;">
+            <canvas id="main">
+            </canvas>
+        </div>
+    </body>
+</html>
